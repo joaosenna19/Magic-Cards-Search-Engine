@@ -1,10 +1,13 @@
+// query selectors
 const submitAction = document.querySelector("form");
+
+const table = document.querySelector("table");
 
 const tableBody = document.querySelector("#tbody");
 
-
-
 const resetAction = document.querySelector("#btn-reset");
+
+const tableDiv = document.querySelector("#tablediv");
 
 function getCardName(res) {
   let cardName = res.data.cards.map((card) => card.name);
@@ -23,15 +26,15 @@ function getManaCost(res) {
 
 function displayManaCostImagery(arr) {
   const symbolImageUrl = {
-    "X": "X.png",
+    X: "X.png",
     // Tap symbol
-    "T": "T.png",
+    T: "T.png",
     // Main colors symbol
-    "W": "W.png",
-    "R": "R.png",
-    "B": "B.png",
-    "G": "G.png",
-    "U": "U.png",
+    W: "W.png",
+    R: "R.png",
+    B: "B.png",
+    G: "G.png",
+    U: "U.png",
     // Numerical symbol
     C: "C.png",
     "0": "0.png",
@@ -63,23 +66,25 @@ function displayManaCostImagery(arr) {
     "G/U": "GU.png",
   };
 
-    const result = arr.map((element) => {
-      if (element) {
-        let arrOfCosts = element.split("}");
-        arrOfCosts = arrOfCosts.map((element) =>
-          element.replace("{", "").replace("}", "")
-        );
-        arrOfCosts.forEach((element, index, arr) => {
-          if (symbolImageUrl[element]) {
-            arr[index] = `<img src="img/${symbolImageUrl[element]}" style="height: 15px; width: 15px;">`;
-          }
-        });
-        return arrOfCosts.join("");
-      } else {
-        return 'No mana cost';
-      }
-    });
-    return result;
+  const result = arr.map((element) => {
+    if (element) {
+      let arrOfCosts = element.split("}");
+      arrOfCosts = arrOfCosts.map((element) =>
+        element.replace("{", "").replace("}", "")
+      );
+      arrOfCosts.forEach((element, index, arr) => {
+        if (symbolImageUrl[element]) {
+          arr[
+            index
+          ] = `<img src="img/${symbolImageUrl[element]}" style="height: 15px; width: 15px;">`;
+        }
+      });
+      return arrOfCosts.join("");
+    } else {
+      return "No mana cost";
+    }
+  });
+  return result;
 }
 
 function createImage(imgUrl) {
@@ -108,7 +113,7 @@ function getCardCollection(res) {
 function createParagraphOnBody(p) {
   let newPara = document.createElement("p");
   newPara.innerHTML = p;
-  tableBody.appendChild(newPara);
+  tableDiv.appendChild(newPara);
 }
 
 const cardImagePositionOnArray = 0;
@@ -135,6 +140,7 @@ function createRow(
     for (let j = 0; j < listOfInfo.length; j++) {
       let newTd = document.createElement("td");
       let info = listOfInfo[j][i];
+      // verifies if the element is an HTML Img
       if (j === cardImagePositionOnArray && info instanceof HTMLImageElement) {
         newTd.appendChild(info);
       } else {
@@ -147,6 +153,7 @@ function createRow(
 
 submitAction.addEventListener("submit", async function (e) {
   tableBody.innerHTML = "";
+  table.hidden = true;
   const input = document.querySelector("input").value.trim();
   const url = "https://api.magicthegathering.io/v1/cards";
   e.preventDefault();
@@ -158,10 +165,11 @@ submitAction.addEventListener("submit", async function (e) {
       let cardName = getCardName(res);
       let cardText = getCardText(res);
       let cardManaCost = getManaCost(res);
-      const allImgs = document.querySelectorAll('img');
+      const allImgs = document.querySelectorAll("img");
       for (img of allImgs) {
-        img.classList.add('img-fluid');
+        img.classList.add("img-fluid");
       }
+      checkHiddenTable();
       cardManaCost = displayManaCostImagery(cardManaCost);
       createRow(cardImageUrl, cardCollection, cardName, cardText, cardManaCost);
     } else {
@@ -175,4 +183,11 @@ submitAction.addEventListener("submit", async function (e) {
   }
 });
 
-resetAction.addEventListener("click", () => (tableBody.innerHTML = ""));
+resetAction.addEventListener("click", () => {
+  tableBody.innerHTML = "";
+  checkHiddenTable();
+});
+
+function checkHiddenTable() {
+  table.hidden = !table.hidden;
+}
